@@ -1,0 +1,39 @@
+# AUTOREPO config file
+#
+
+#AUTOREPO Projects
+[A9]
+project_dir = /home/username/project/ics-robin
+repo = yes
+build = yes
+sku = s500_ww_gen1
+variant = userdebug
+cleanbuild = no
+
+[ICS-PE2]
+project_dir = /home/username/project/ics-mr1.1-pe2
+repo = no
+build = no
+sku = a210_ww_gen1
+variant = userdebug
+cleanbuild = no
+
+[JB-PMF]
+project_dir = /home/username/project/jb-pmf
+repo = yes
+build = yes
+sku = a700_ww_gen1
+variant = userdebug
+cleanbuild = no
+
+# Set output directory for check function
+[output_dir]
+a100 = vangogh
+a200 = picasso_e
+a210 = picasso_e2
+a500 = picasso
+a510 = picasso_m
+a700 = picasso_mf
+a710 = 
+a800 = 
+s500 = a9

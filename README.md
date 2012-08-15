@@ -8,6 +8,7 @@ export PATH=$HOMD/autorepo/:$PATH
 $ source .bashrc  
 $ cd $HOME  
 $ git clone https://github.com/codediablos/autorepo.git  
+$ cp .autorepo_conf_template ~/.autorepo_conf  
 
 ###3. Set auto repo & build  
 $ autorepo --config    #Setting repo dir & build dir(you can change EDITOR env value for different editor) 

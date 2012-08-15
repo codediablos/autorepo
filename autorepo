@@ -22,7 +22,7 @@ class AutoRepo:
     EDITOR = "vi"
     HOME_DIR = os.environ["HOME"]
 
-    autorepo_config = HOME_DIR + "/autorepo/.autorepo_conf"
+    autorepo_config = HOME_DIR + "/.autorepo_conf"
 
     MSG_USAGE = "autorepo[ --config | --start][ --debug][ --start][ --clean][ --log]"
 
