@@ -2,16 +2,16 @@
 
 ##How to Use:
 ###1.  Add below to your .bashrc:  
-export PATH=$HOMD/autorepo/:$PATH  
+> export PATH=$HOMD/autorepo/:$PATH  
 
-###2. Put files in your linux  
-$ source .bashrc  
-$ cd $HOME  
-$ git clone https://github.com/codediablos/autorepo.git  
-$ cp .autorepo_conf_template ~/.autorepo_conf  
+###2. Put autorepo in your linux  
+> $ cd ~  
+> $ git clone https://github.com/codediablos/autorepo.git  
+> $ source .bashrc  
+> $ cp ~/autorepo/.autorepo_conf_template ~/.autorepo_conf  
 
 ###3. Set auto repo & build  
-$ autorepo --config    #Setting repo dir & build dir(you can change EDITOR env value for different editor) 
+> $ autorepo --config    #Setting repo dir & build dir(you can change EDITOR env value for different editor) 
 
 Config file:  
 
@@ -33,16 +33,16 @@ a510 = picasso_m
 a700 = picasso_mf  
 
 ###4. Add "autorepo" on your crontab  
-$ crontab -e                         #Setting daily run  
+> $ crontab -e                         #Setting daily run  
   
 'm h  dom mon dow   command'  
 ex. 10 2  *   *   *     /home/username/cron/autorepo --start  #every 2:10 am running autorepo  
      10 2  *   *   *     /home/username/cron/autorepo --start --clean #every 2:10 am running autorepo using cleanbuild  
 
 ###5. Other function  
-$ autorepo -c  #check repo is success or fail.  
-$ autorepo --help  
-$ autorepo --log savelog  
+> $ autorepo -c  #check repo is success or fail.  
+> $ autorepo --help  
+> $ autorepo --log savelog  
 
 -----------------------------------------------------
 
