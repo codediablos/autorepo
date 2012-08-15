@@ -1,0 +1,218 @@
+#!/usr/bin/python
+
+## @package autorepo
+#  auto repo sync & build every day
+#
+#  @author: Holiday Hao <codediablos@gmail.com>
+#  @version: 2.8.15
+
+
+import os
+import sys
+import datetime
+import time
+import optparse
+import ConfigParser
+
+
+class AutoRepo:
+    DEBUG_LEVEL = 0
+    MAKE_CLEAN = 0
+
+    EDITOR = "vi"
+    HOME_DIR = os.environ["HOME"]
+
+    autorepo_config = HOME_DIR + "/autorepo/.autorepo_conf"
+
+    MSG_USAGE = "autorepo[ --config | --start][ --debug][ --start][ --clean][ --log]"
+
+    config = ConfigParser.SafeConfigParser()
+    
+    def __init__(self, argv):
+        self.config.read(self.autorepo_config)
+
+        self.parser = optparse.OptionParser(self.MSG_USAGE)
+        self.parser.add_option("--debug", "-g", action="store_true", dest="debug", help="for debug",default=False)
+        self.parser.add_option("--config", action="store_true", dest="config", help="setting config file", default=False)
+        self.parser.add_option("--check", "-c", action="store_true", dest="check", help="check repo build status", default=False)
+        self.parser.add_option("--clean", action="store_true", dest="clean", help="using clean build", default=False)
+        self.parser.add_option("--start", "-s", action="store_true", dest="start", help="start repo and build", default=False)
+        self.parser.add_option("--log", "-l", action="store", type="string", dest="log", help="save build log")
+        self.options, self.args = self.parser.parse_args(argv)
+
+    def configure(self):
+        self.open_editor(self.autorepo_config)
+
+        print "Using 'crontab -e' to setting autorepo sync "
+        print "ex. 'm h  dom mon dow   command' "
+        print "    '0 2  *   *   *     /home/username/autorepo/autorepo' "
+        print "    '0 2  1   *   *     /home/username/autorepo/autorepo --clean' "
+
+    def open_editor(self, edit_file):
+        try:
+            self.EDITOR = os.environ["EDITOR"]
+        except:
+            pass
+
+        self.excute_cmd(self.EDITOR + " " + edit_file, 3)
+
+    def flush_screen(self):
+        self.excute_cmd("clear", 3)
+
+    def check(self):
+        print bcolors.WARNING + '\n-----Begin Check REPO-----' + bcolors.ENDC
+        for section in self.config.sections():
+            if not section.find('output_dir') == -1 or not section.find('core') == -1:
+                continue
+            if not self.config.get(section, 'repo') == 'yes':
+                continue
+
+            check_repo = self.config.get(section, 'project_dir') + '/.repo/project.list'
+
+            if self.check_time(check_repo):
+                print section + " -> " + bcolors.OKGREEN + "OK" + bcolors.ENDC
+            else:
+                print section + " -> " + bcolors.FAIL + "FAIL" + bcolors.ENDC
+
+        print bcolors.WARNING + '\n-----Begin Check BUILD-----' + bcolors.ENDC
+        for section in self.config.sections():
+            if not section.find('output_dir') == -1 or not section.find('core') == -1:
+                continue
+            if not self.config.get(section, 'build') == 'yes':
+                continue
+
+            out_dir = "/out/target/product/" + self.trans_project_name(self.config.get(section, 'sku')[0:4])
+            check_boot = self.config.get(section, 'project_dir') + out_dir + "/boot.img"
+
+            if self.check_time(check_boot):
+                print section + " -> " + bcolors.OKGREEN + "OK" + bcolors.ENDC
+            else:
+                print section + " -> " + bcolors.FAIL + "FAIL" + bcolors.ENDC
+
+    def check_time(self, filename):
+        if not os.path.isfile(filename):
+            return False
+
+        #oneday_ago = now - 60 * 60 * 18 * 1 # Number of seconds in one day
+        today = datetime.datetime.fromtimestamp(time.time())
+        file_creation = datetime.datetime.fromtimestamp(os.path.getctime(filename))
+
+        if file_creation.day == today.day and \
+                file_creation.month == today.month and \
+                file_creation.year == today.year:
+            return True
+
+        return False
+
+    def trans_project_name(self, id):
+        inx = id
+        if not id[-1] == "0":
+            inx = id[:-1] + "0"
+
+        if self.config.has_option('output_dir', inx):
+            return self.config.get('output_dir', inx)
+        else:
+            return ''
+
+    def excute_cmd(self, cmd, level):
+        if self.DEBUG_LEVEL < level:
+            os.system(cmd)
+        else:
+            print cmd
+
+    def run(self):
+        print "running repo sync & build"
+
+        #RESET LOG FILES
+        if not self.options.log == None:
+            self.excute_cmd("rm " + self.options.log, 2)
+
+        for section in self.config.sections():
+            if not section.find('output_dir') == -1 or not section.find('core') == -1:
+                continue
+
+            try:
+                repo_cmd = ''
+                build_cmd = ''
+                #START REPO
+                if self.config.get(section, 'repo') == 'yes':
+                    #CD DIR
+                    repo_cmd = 'cd ' + self.config.get(section, 'project_dir')
+
+                    #REPO SYNC
+                    repo_cmd += ' && repo sync'
+
+                    self.excute_cmd(repo_cmd, 1)
+
+                #START BUILD
+                if self.config.get(section, 'build') == 'yes':
+
+                    #CD DIR
+                    build_cmd = "cd " + self.config.get(section, 'project_dir')
+
+                    #MAKE CLEAN
+                    if self.config.get(section, 'cleanbuild') == 'yes' or  self.MAKE_CLEAN == 1:
+                        build_cmd += " && make clean"
+
+                    #BUILD COMMAND
+                    build_cmd += " && ./build.sh -s " + self.config.get(section, 'sku')
+
+                    if self.config.has_option(section, 'variant'):
+                        build_cmd += " -v " + self.config.get(section, 'variant')
+
+                    #SAVE LOG
+                    if not self.options.log == None:
+                        build_cmd += " >> " + self.options.log
+                        self.excute_cmd("echo '" + build_cmd + "---------------------------------------------' >> " + 
+                                        self.options.log, 2)
+
+                    self.excute_cmd(build_cmd, 1)
+            except:
+                print 'Config Error!'
+
+    def set_clean(self):
+        self.MAKE_CLEAN = 1
+
+    def enable_debug(self, level):
+        self.DEBUG_LEVEL = level
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKLIGHTBLUE = '\033[94m'
+    OKBLUE = '\033[34m'
+    OKLIGHTGREEN = '\033[92m'
+    OKGREEN = '\033[32m'
+    WARNING = '\033[93m'
+    LIGHTFAIL = '\033[91m'
+    FAIL = '\033[31m'
+    ENDC = '\033[0m'
+
+    def disable(self):
+        self.HEADER = ''
+        self.OKBLUE = ''
+        self.OKLIGHTBLUE  = ''
+        self.OKGREEN = ''
+        self.OKLIGHTGREEN = ''
+        self.WARNING = ''
+        self.FAIL = ''
+        self.LIGHTFAIL = ''
+        self.ENDC = ''
+
+
+def main():
+    repo = AutoRepo(sys.argv[1:])
+    if repo.options.config:
+        repo.configure()
+    elif repo.options.check:
+        repo.check()
+    else:
+        if repo.options.clean:
+            repo.set_clean()
+        if repo.options.debug:
+            repo.enable_debug(1)
+        if repo.options.start:
+            repo.run()
+
+if __name__ == "__main__":
+    main()
