@@ -40,9 +40,10 @@ ex. 10 2  *   *   *     /home/username/cron/autorepo --start  #every 2:10 am run
      10 2  *   *   *     /home/username/cron/autorepo --start --clean #every 2:10 am running autorepo using cleanbuild  
 
 ###5. Other function  
-> $ autorepo -c  #check repo is success or fail.  
+> $ autorepo -c  #check repo & build is success or fail.  
 > $ autorepo --help  
-> $ autorepo --log savelog  
+> $ autorepo --start --rlog ~/rlog.txt #save repo error log  
+> $ autorepo --start --blog ~/blog.txt #save build error log  
 
 -----------------------------------------------------
 
