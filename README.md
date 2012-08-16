@@ -2,7 +2,7 @@
 
 ##How to Use:
 ###1.  Add below to your .bashrc:  
-> export PATH=$HOMD/autorepo/:$PATH  
+> export PATH=$HOME/autorepo/:$PATH  
 
 ###2. Put autorepo in your linux  
 > $ cd ~  
