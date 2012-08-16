@@ -230,7 +230,7 @@ def main():
         if repo.options.clean:
             repo.set_clean()
         if repo.options.debug:
-            repo.enable_debug(1)
+            repo.enable_debug(3)
         if repo.options.start:
             repo.run()
 
