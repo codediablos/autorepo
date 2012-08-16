@@ -39,6 +39,7 @@ class AutoRepo:
         self.parser.add_option("--start", "-s", action="store_true", dest="start", help="start repo and build", default=False)
         self.parser.add_option("--rlog", action="store", type="string", dest="rlog", help="save repo log")
         self.parser.add_option("--blog", action="store", type="string", dest="blog", help="save build log")
+        self.parser.add_option("--endless", action="store_true", dest="endless", help="running repo endless", default=False)
         self.options, self.args = self.parser.parse_args(argv)
 
     def configure(self):
@@ -117,9 +118,11 @@ class AutoRepo:
 
     def excute_cmd(self, cmd, level):
         if self.DEBUG_LEVEL < level:
-            os.system(cmd)
+            return os.system(cmd)
         else:
             print cmd
+
+        return 0
 
     def run(self):
         print "running repo sync & build"
@@ -155,7 +158,10 @@ class AutoRepo:
                         self.excute_cmd("echo '" + repo_cmd + "---------------------------------------------' >> " + 
                                         self.options.rlog, 2)
 
-                    self.excute_cmd(repo_cmd, 1)
+                    error = self.excute_cmd(repo_cmd, 1)
+
+                    while self.options.endless and not error == 0:
+                        self.excute_cmd(repo_cmd, 1)
 
                 #START BUILD
                 if self.config.get(section, 'build') == 'yes':
@@ -181,7 +187,8 @@ class AutoRepo:
 
                     self.excute_cmd(build_cmd, 1)
             except:
-                print 'Config Error!'
+                import traceback
+                traceback.print_exc()
 
     def set_clean(self):
         self.MAKE_CLEAN = 1
