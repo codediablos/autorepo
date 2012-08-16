@@ -1,5 +1,7 @@
 # AUTOREPO config file
 #
+[core]
+repo = /home/username/bin/repo
 
 #AUTOREPO Projects
 [A9]

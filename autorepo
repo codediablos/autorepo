@@ -130,6 +130,10 @@ class AutoRepo:
         if not self.options.blog == None:
             self.excute_cmd("rm " + self.options.blog, 2)
 
+        repo_location = 'repo'
+        if self.config.has_option('core', 'repo'):
+            repo_location = self.config.get('core', 'repo')
+
         for section in self.config.sections():
             if not section.find('output_dir') == -1 or not section.find('core') == -1:
                 continue
@@ -143,7 +147,7 @@ class AutoRepo:
                     repo_cmd = 'cd ' + self.config.get(section, 'project_dir')
 
                     #REPO SYNC
-                    repo_cmd += ' && repo sync'
+                    repo_cmd += ' && ' + repo_location + ' sync'
 
                     #SAVE LOG
                     if not self.options.rlog == None:
