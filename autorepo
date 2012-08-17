@@ -161,7 +161,7 @@ class AutoRepo:
                     error = self.excute_cmd(repo_cmd, 1)
 
                     while self.options.endless and not error == 0:
-                        self.excute_cmd(repo_cmd, 1)
+                        error = self.excute_cmd(repo_cmd, 1)
 
                 #START BUILD
                 if self.config.get(section, 'build') == 'yes':
