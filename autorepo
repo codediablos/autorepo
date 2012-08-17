@@ -47,8 +47,8 @@ class AutoRepo:
 
         print "Using 'crontab -e' to setting autorepo sync "
         print "ex. 'm h  dom mon dow   command' "
-        print "    '0 2  *   *   *     /home/username/autorepo/autorepo' "
-        print "    '0 2  1   *   *     /home/username/autorepo/autorepo --clean' "
+        print "    '0 2  *   *   *     /home/username/autorepo/autorepo --start' "
+        print "    '0 2  1   *   *     /home/username/autorepo/autorepo --start --clean' "
 
     def open_editor(self, edit_file):
         try:
